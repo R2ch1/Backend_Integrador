@@ -9,7 +9,7 @@ describe('Registro', () => {
         nombre: 'Test',
         correo: `test${Date.now()}@gmail.com`,
         contrasena: '123456',
-        rol: 'usuario',
+        rol: 'cliente',
       });
 
     expect(res.statusCode).toBe(201);

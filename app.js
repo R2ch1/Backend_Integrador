@@ -100,7 +100,7 @@ app.post('/api/usuarios', async (req, res) => {
 
     db.query(
       sql,
-      [nombre, correo, hash, rol || 'usuario'],
+      [nombre, correo, hash, rol || 'cliente'],
       (error) => {
         if (error) {
           if (error.code === 'ER_DUP_ENTRY') {
@@ -116,6 +116,52 @@ app.post('/api/usuarios', async (req, res) => {
 
         return res.status(201).json({
           mensaje: 'Usuario creado correctamente',
+        });
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({
+      mensaje: 'Error interno',
+    });
+  }
+});
+
+const { authenticateToken, requireAdmin } = require('./middleware/auth');
+
+// REGISTRO OPERADOR (creado por admin)
+app.post('/api/operadores', authenticateToken, requireAdmin, async (req, res) => {
+  const { nombre, correo, contrasena } = req.body;
+
+  if (!nombre || !correo || !contrasena) {
+    return res.status(400).json({
+      mensaje: 'Nombre, correo y contraseña son requeridos',
+    });
+  }
+
+  try {
+    const hash = await bcrypt.hash(contrasena, 10);
+
+    const sql =
+      'INSERT INTO usuarios (nombre, correo, contrasena, rol) VALUES (?, ?, ?, ?)';
+
+    db.query(
+      sql,
+      [nombre, correo, hash, 'operador'],
+      (error) => {
+        if (error) {
+          if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({
+              mensaje: 'El correo ya está registrado',
+            });
+          }
+
+          return res.status(500).json({
+            mensaje: 'Error al crear operador',
+          });
+        }
+
+        return res.status(201).json({
+          mensaje: 'Operador creado correctamente',
         });
       }
     );
