@@ -25,4 +25,10 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-module.exports = { authenticateToken, requireAdmin };
+function requireOperatorOrAdmin(req, res, next) {
+  if (!req.usuario) return res.status(401).json({ mensaje: 'Token requerido' });
+  if (req.usuario.rol !== 'admin' && req.usuario.rol !== 'operador') return res.status(403).json({ mensaje: 'Permisos insuficientes' });
+  next();
+}
+
+module.exports = { authenticateToken, requireAdmin, requireOperatorOrAdmin };
